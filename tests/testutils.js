@@ -12,7 +12,7 @@ export async function loginUser(api, auth) {
 }
 
 export const initialScores = [
-  { score: 503, username: "test" },
+  { score: 503, username: "testuser" },
   { score: 400, username: "user" },
 ];
 

@@ -22,10 +22,33 @@ beforeEach(async () => {
 });
 
 test("GET: getHighScores", async () => {
-  const response = await api
+  const res = await api
     .get("/api/score")
     .expect(200)
     .expect("Content-Type", /application\/json/);
+
+  const data = await res.body;
+
+  assert.strictEqual(data.scores.length, initialScores.length);
+});
+
+test("GET: highscores with logged in user (user scores retrieved and high scores retrieved)", async () => {
+  const auth = {};
+  await loginUser(api, auth);
+
+  const res = await api
+    .get("/api/score")
+    .set("Authorization", "Bearer " + auth.token)
+    .expect(200)
+    .expect("Content-Type", /application\/json/);
+
+  const data = await res.body;
+
+  assert.strictEqual(
+    data.userScores.length,
+    initialScores.filter((score) => score.username == "testuser").length
+  );
+  assert.strictEqual(data.scores.length, initialScores.length);
 });
 
 test("POST: adding score works", async () => {
@@ -37,9 +60,9 @@ test("POST: adding score works", async () => {
     .expect("Content-Type", /application\/json/);
 
   const res = await api.get("/api/score");
-  assert.strictEqual(res.body.length, initialScores.length + 1);
+  assert.strictEqual(res.body.scores.length, initialScores.length + 1);
   assert.strictEqual(
-    res.body.some((document) => document.score == value),
+    res.body.scores.some((document) => document.score == value),
     true
   );
 });
@@ -58,8 +81,8 @@ test("POST: Login", async () => {
   assert.notEqual(res.body.token, undefined);
 });
 
-var auth = {};
 test("PUT: change username succeeds when logged in", async () => {
+  const auth = {};
   await loginUser(api, auth);
 
   await api
@@ -82,6 +105,7 @@ test("PUT: change username succeeds when logged in", async () => {
 });
 
 test("PUT: change username fails when not unique and when not logged in", async () => {
+  const auth = {};
   await loginUser(api, auth);
 
   await api

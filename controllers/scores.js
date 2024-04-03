@@ -2,12 +2,27 @@ import express from "express";
 const router = express.Router({ mergeParams: true });
 import Score from "../models/Score.js";
 import User from "../models/User.js";
+import jwt from "jsonwebtoken";
 
 const scoreController = {
   getHighScores: async (req, res) => {
+    const { authorization } = req.headers;
+
     try {
       let scores = await Score.getHighScores();
-      res.status(200).json(scores);
+      const data = { scores };
+      if (authorization) {
+        const token = authorization.split(" ")[1];
+        const { username } = jwt.verify(token, process.env.JWT_SECRET);
+        if (!username) {
+          res.status(200).json(data);
+          return;
+        }
+
+        const userScores = await Score.find({ username: username });
+        data.userScores = userScores;
+      }
+      res.status(200).json(data);
     } catch (err) {
       console.error(err);
       res.status(500);
