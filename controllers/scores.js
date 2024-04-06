@@ -13,12 +13,11 @@ const scoreController = {
       const data = { scores };
       if (authorization) {
         const token = authorization.split(" ")[1];
-        const { username } = jwt.verify(token, process.env.JWT_SECRET);
+        const { username, id } = jwt.verify(token, process.env.JWT_SECRET);
         if (!username) {
           res.status(200).json(data);
           return;
         }
-
         const userScores = await Score.find({ username: username });
         data.userScores = userScores;
       }
@@ -29,14 +28,16 @@ const scoreController = {
     }
   },
   addNewScore: async (req, res) => {
+    const { authorization } = req.headers;
     try {
-      const { score, userId } = req.body;
+      const { score } = req.body;
       if (!score) throw new Error("No score");
       let user,
         username = "Guest";
-      if (req.user?.id) {
-        user = await User.findOne({ _id: req.user.id });
-        username = user.username;
+      if (authorization) {
+        const token = authorization.split(" ")[1];
+        const data = jwt.verify(token, process.env.JWT_SECRET);
+        username = data.username;
       }
 
       const newScore = new Score({
