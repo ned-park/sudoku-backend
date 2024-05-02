@@ -18,7 +18,11 @@ const scoreController = {
           res.status(200).json(data);
           return;
         }
-        const userScores = await Score.find({ username: username });
+        const userScores = await Score.find({ username: username })
+          .sort({
+            score: 1,
+          })
+          .limit(10);
         data.userScores = userScores;
       }
       res.status(200).json(data);

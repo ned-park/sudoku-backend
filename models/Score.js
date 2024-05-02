@@ -24,21 +24,7 @@ const ScoreSchema = new mongoose.Schema({
 });
 
 ScoreSchema.statics.getHighScores = async function () {
-  // const scores = await Score.aggregate([
-  //   {
-  //     $group: {
-  //       score: { $min: "$result.score" },
-  //     },
-  //   },
-  //   {
-  //     $sort: { score: 1 },
-  //   },
-  //   {
-  //     $limit: 10,
-  //   },
-  // ]);
-  const scores = await Score.find({});
-  // if (scores) console.log(scores);
+  const scores = await Score.find({}).sort({ score: 1 }).limit(10);
   return scores;
 };
 
