@@ -13,11 +13,21 @@ import scoreRoutes from "./routes/score.js";
 const __filename = new URL("", import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 
+const allowedOrigins = JSON.parse(process.env.CORS_ORIGIN);
+
 const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: JSON.parse(process.env.CORS_ORIGIN),
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
   })
 );
 
