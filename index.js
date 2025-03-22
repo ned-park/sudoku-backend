@@ -14,7 +14,6 @@ const __filename = new URL("", import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 
 const allowedOrigins = JSON.parse(process.env.CORS_ORIGIN);
-console.log(allowedOrigins);
 
 const app = express();
 app.use(express.json());
@@ -25,7 +24,6 @@ app.use(
       if (allowedOrigins.indexOf(origin) === -1) {
         const msg =
           "The CORS policy for this site does not allow access from the specified Origin.";
-        console.log(origin);
         return callback(new Error(msg), false);
       }
       return callback(null, true);
